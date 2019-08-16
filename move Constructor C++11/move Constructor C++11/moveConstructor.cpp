@@ -7,7 +7,7 @@ class B
 
 public:
 	//默认构造函数
-	B() :m_bm(0) 
+	B() :m_bm(598) 
 	{
 		cout << "B类的默认构造函数执行" << endl;
 	}
@@ -35,7 +35,7 @@ public:
 	{
 	
 	}
-
+	//拷贝构造函数
 	A(const A & temp):m_pb(new B (*(temp.m_pb)))
 	{
 		this->m_pb = new B(*(temp.m_pb));
@@ -46,6 +46,39 @@ public:
 		delete m_pb;
 		cout << "类A的析构函数执行" << endl;
 	}
+
+	//移动拷贝构造函数
+	A (A &&temp):m_pb(temp.m_pb)
+	{
+		temp.m_pb = nullptr;
+		cout << "类A的移动拷贝构造函数执行" << endl;
+	}
+
+	//拷贝赋值运算函数
+	A& operator =(const A& temp)
+	{
+		if (this == &temp)
+		{
+			return *this;
+
+			delete this->m_pb;
+			m_pb = new B(*temp.m_pb);//重新分配了一块内存
+			cout << "类A的赋值运算执行" << endl;
+			return *this;
+		}
+	}
+	//移动赋值运算函数
+	A& operator =(A&& temp)
+	{
+		if (this == &temp)
+			return *this;
+			
+		delete temp.m_pb;//把自己的内存先干掉
+		m_pb = temp.m_pb;//对方的内存直接拿过来，直接指过来
+		cout << "类A的移动赋值运算执行" << endl;
+		return *this;
+	}
+
 private:
 
 	B* m_pb;
@@ -62,11 +95,9 @@ int main()
 {
 	A a = getA();
 
+	A a1;
+	a1 = std::move(a);//调用移动赋值运算函数的方法
+	
 
-	//B *pb = new B(); //new调用类的B的构造函数
-	//pb->m_bm = 19;
-	//B* pb2 = new B(*pb);//这种给参数的new方法会调用B的拷贝构造函数
 
-	//delete pb;
-	//delete pb2;
 }
